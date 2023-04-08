@@ -1,0 +1,64 @@
+pipeline{
+
+    agent any 
+
+    environment{
+
+        DOCKERHUB_USERNAME = "hesblac"
+        APP_NAME = "gitops-argo-app"
+        IMAGE_TAG = "${BUILD_NUMBER}"
+        IMAGE_NAME = "${DOCKERHUB_USERNAME}" + "/" + "${APP_NAME}"
+        REGISTRY_CREDS = 'dockerhub'
+    }
+
+    stages{
+
+        stage('cleanup workspace'){
+            
+            steps{
+
+                script{
+
+                    cleanWs()
+                }
+            }
+        }
+        stage('Checkout SCM'){
+
+            steps{
+
+                script{
+                git credentialsId: "github",
+               // withCredentials([gitUsernamePassword(credentialsId: 'github', gitToolName: 'Default')]) {
+                url: "https://github.com/hesblac/hello.git",
+                branch: "main"
+           // }
+                    
+                }
+            }
+        }
+        stage('Build docker image'){
+
+            steps{
+
+                script{
+
+                    docker_image = docker.Build ${IMAGE_NAME}
+                }
+            }
+        }
+        stage('Push Docker Image'){
+
+            steps{
+
+                script{
+
+                    docker.withRegisty('',REGISTRY_CREDS ){
+                        docker_image.Push("${BUILD_NUMBER}")
+                        docker_image.Push("latest")
+                    }
+                }
+            }
+        }
+    }
+}
