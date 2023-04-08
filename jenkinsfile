@@ -53,9 +53,10 @@ pipeline{
 
                 script{
 
-                    docker.withRegisty('',REGISTRY_CREDS ){
-                        docker_image.Push("$BUILD_NUMBER")
-                        docker_image.Push("latest")
+                    docker.withRegistry('', REGISTRY_CREDS) {
+                        
+                        docker.push(IMAGE_NUMBER)
+                        docker.push("Latest")
                     }
                 }
             }
