@@ -55,8 +55,8 @@ pipeline{
 
                     docker.withRegistry('', REGISTRY_CREDS) {
                         
-                        docker.push(IMAGE_NUMBER)
-                        docker.push("Latest")
+                        docker_image.push("$BUILD_NUMBER")
+                        docker_image.push("latest")
                     }
                 }
             }
