@@ -72,37 +72,16 @@ pipeline{
                 }
             }
         }
-        stage('Updating kubernetes deployment file'){
+        stage('Trigger config change to CD pipelind'){
 
             steps{
 
                 script{
 
-                    sh """
-                    cat deployment.yml
-                    sed -i "s/${APP_NAME}.*/${APP_NAME}:${IMAGE_TAG}/g" deployment.yml
-                    cat deployment.yml
-                    """
+                    sh curl -v -k --user hesblac:114f2fe16f5c0ec8744439ca6454ac742c -X POST -H 'cache-control: no-cache'
+                    -H 'content-type: application/x-www-form-urlcoded' --data 'IMAGE_TAG=${IMAGE_TAG}' http://13.57.226.186:8080/job/gitops-argo-CD/buildWithParameters?token=gitops-config'
                 }
             }
-        }
-        stage('push the changed deployment file to git again'){
-
-            steps{
-
-                script{
-
-                    sh """
-                      git config --global user.name "hesblac"
-                      git config --global user.email "olaiyagbolagade@gmail.com"
-                      git add deployment.yml
-                      git commit -m "updated the deployment file"
-                    """
-                    withCredentials([gitUsernamePassword(credentialsId: 'github', gitToolName: 'Default')]) {
-                    sh "git push https://github.com/hesblac/hello.git main"
-                }
-                }
-            }
-        }
+        }     
     }
 }
